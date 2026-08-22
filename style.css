@@ -83,26 +83,29 @@ body {
    ============================================ */
 .tabs {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 4px;
   background: var(--navy);
   padding: 6px;
-  max-width: 520px;
+  max-width: 640px;
   margin: -16px auto 0;
   border-radius: 999px;
   position: relative;
   box-shadow: 0 6px 16px rgba(7, 42, 46, 0.25);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .tab {
-  flex: 1;
-  padding: 10px 18px;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  padding: 10px 16px;
   border: none;
   background: transparent;
   color: var(--turquoise-light);
   font-family: var(--font-body);
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   border-radius: 999px;
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease;
@@ -332,6 +335,158 @@ body {
 }
 
 .board__delete:hover { color: var(--coral); }
+
+/* ============================================
+   SUB-TABS (used inside Packing panel to switch
+   between Packing and Groceries)
+   ============================================ */
+.sub-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.sub-tab {
+  padding: 6px 16px;
+  border: 1px solid var(--turquoise);
+  background: transparent;
+  color: var(--navy);
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.sub-tab.is-active {
+  background: var(--turquoise);
+  color: var(--navy-deep);
+}
+
+.sub-panel { display: none; }
+.sub-panel.is-active { display: block; }
+form.sub-panel.is-active { display: flex; }
+ul.sub-panel.is-active { display: block; }
+
+/* ============================================
+   EXCURSIONS — card per activity, with a row of
+   "joiner" chips showing who's in.
+   ============================================ */
+.card-list { display: flex; flex-direction: column; gap: 10px; }
+
+.excursion-card {
+  background: var(--white);
+  border-radius: 10px;
+  padding: 14px 16px;
+  box-shadow: 0 1px 4px rgba(11, 61, 66, 0.06);
+}
+
+.excursion-card__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.excursion-card__title { font-weight: 600; }
+
+.excursion-card__when {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--navy);
+  white-space: nowrap;
+}
+
+.excursion-card__delete {
+  border: none;
+  background: none;
+  color: #b0554a;
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--sand);
+  border: 1px solid #dcd3b8;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+}
+
+.chip button {
+  border: none;
+  background: none;
+  color: #b0554a;
+  cursor: pointer;
+  font-size: 0.7rem;
+  padding: 0;
+}
+
+.join-row {
+  display: flex;
+  gap: 6px;
+}
+
+.join-row input {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid #dcd3b8;
+  border-radius: 6px;
+  background: var(--sand);
+  font-size: 0.85rem;
+}
+
+.join-row button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  background: var(--coral);
+  color: var(--navy-deep);
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+/* ============================================
+   EXPENSE SUMMARY CARD
+   ============================================ */
+.summary-card {
+  background: var(--navy-deep);
+  color: var(--sand);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  font-size: 0.85rem;
+}
+
+.summary-card__total {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  color: var(--turquoise-light);
+  margin-bottom: 6px;
+}
+
+.summary-card__row {
+  display: flex;
+  justify-content: space-between;
+  padding: 2px 0;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+.summary-card__row--owed { color: var(--turquoise-light); }
+.summary-card__row--owes { color: var(--coral); }
 
 /* ============================================
    MISC

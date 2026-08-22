@@ -27,7 +27,11 @@
   <!-- Tab navigation -->
   <nav class="tabs" id="tabs">
     <button class="tab is-active" data-tab="itinerary">Itinerary</button>
+    <button class="tab" data-tab="dinner">Dinner</button>
+    <button class="tab" data-tab="excursions">Excursions</button>
     <button class="tab" data-tab="packing">Packing</button>
+    <button class="tab" data-tab="expenses">Expenses</button>
+    <button class="tab" data-tab="rooms">Rooms</button>
     <button class="tab" data-tab="flights">Flights</button>
   </nav>
 
@@ -52,21 +56,126 @@
       </div>
     </section>
 
-    <!-- PACKING PANEL -->
+    <!-- DINNER PANEL -->
+    <section class="panel" id="panel-dinner">
+      <div class="panel-head">
+        <h1>Dinner Plan</h1>
+        <p class="panel-sub">Alexandra's dine-around covers 7 restaurants across Alexandra, Beach House, and Blue Haven &mdash; use this to call which one you're hitting each night.</p>
+      </div>
+
+      <form id="dinner-form" class="add-row">
+        <input type="date" id="dinner-date" required />
+        <input type="time" id="dinner-time" />
+        <input list="restaurant-options" id="dinner-restaurant" placeholder="Restaurant" required />
+        <datalist id="restaurant-options">
+          <option value="Coconut Bar"></option>
+          <option value="Beach House Turks and Caicos"></option>
+          <option value="Blue Haven Resort"></option>
+        </datalist>
+        <input type="text" id="dinner-notes" placeholder="Notes, e.g. dress code, reservation time" />
+        <button type="submit">Add</button>
+      </form>
+
+      <div id="dinner-list" class="day-list">
+        <p class="empty-state">No dinner plans yet. Add the first night above.</p>
+      </div>
+    </section>
+
+    <!-- EXCURSIONS PANEL -->
+    <section class="panel" id="panel-excursions">
+      <div class="panel-head">
+        <h1>Excursions</h1>
+        <p class="panel-sub">Post an activity, and everyone taps in if they're joining &mdash; no more group-chat headcounts.</p>
+      </div>
+
+      <form id="excursion-form" class="add-row">
+        <input type="text" id="excursion-name" placeholder="Activity, e.g. Caicos Dream Tours snorkel" required />
+        <input type="date" id="excursion-date" required />
+        <input type="time" id="excursion-time" />
+        <button type="submit">Add</button>
+      </form>
+
+      <div id="excursion-list" class="card-list">
+        <p class="empty-state">No excursions posted yet.</p>
+      </div>
+    </section>
+
+    <!-- PACKING PANEL (packing list + grocery list, toggled) -->
     <section class="panel" id="panel-packing">
       <div class="panel-head">
         <h1>Packing List</h1>
-        <p class="panel-sub">Shared checklist. Check off what's packed.</p>
+        <p class="panel-sub">Shared checklist. Check off what's packed &mdash; and since the suites have kitchens, swap over to Groceries for the first-day supermarket run.</p>
       </div>
 
-      <form id="packing-form" class="add-row">
+      <div class="sub-tabs" id="packing-sub-tabs">
+        <button class="sub-tab is-active" data-subtab="packing">Packing</button>
+        <button class="sub-tab" data-subtab="groceries">Groceries</button>
+      </div>
+
+      <form id="packing-form" class="add-row sub-panel is-active" data-subpanel="packing">
         <input type="text" id="packing-item" placeholder="Add an item, e.g. Reef-safe sunscreen" required />
         <button type="submit">Add</button>
       </form>
 
-      <ul id="packing-list" class="checklist">
+      <form id="groceries-form" class="add-row sub-panel" data-subpanel="groceries">
+        <input type="text" id="groceries-item" placeholder="Add an item, e.g. Coffee, eggs, rum" required />
+        <button type="submit">Add</button>
+      </form>
+
+      <ul id="packing-list" class="checklist sub-panel is-active" data-subpanel="packing">
         <li class="empty-state">Nothing on the list yet.</li>
       </ul>
+
+      <ul id="groceries-list" class="checklist sub-panel" data-subpanel="groceries">
+        <li class="empty-state">Nothing on the list yet.</li>
+      </ul>
+    </section>
+
+    <!-- EXPENSES PANEL -->
+    <section class="panel" id="panel-expenses">
+      <div class="panel-head">
+        <h1>Expenses</h1>
+        <p class="panel-sub">A lightweight cost-splitting helper &mdash; not a full settle-up app, just a quick read on who's paid what.</p>
+      </div>
+
+      <form id="expenses-settings-form" class="add-row">
+        <label for="expenses-people-count" style="align-self:center;font-size:0.85rem;color:#4a5f63;">Splitting between</label>
+        <input type="number" id="expenses-people-count" min="1" value="1" style="max-width:70px;" />
+        <label for="expenses-people-count" style="align-self:center;font-size:0.85rem;color:#4a5f63;">people</label>
+        <button type="submit">Save</button>
+      </form>
+
+      <form id="expense-form" class="add-row">
+        <input type="text" id="expense-description" placeholder="What was it for?" required />
+        <input type="number" id="expense-amount" placeholder="Amount ($)" min="0" step="0.01" required />
+        <input type="text" id="expense-payer" placeholder="Who paid?" required />
+        <button type="submit">Add</button>
+      </form>
+
+      <div id="expense-summary" class="summary-card"></div>
+
+      <div id="expense-list" class="day-list">
+        <p class="empty-state">No expenses logged yet.</p>
+      </div>
+    </section>
+
+    <!-- ROOMS PANEL -->
+    <section class="panel" id="panel-rooms">
+      <div class="panel-head">
+        <h1>Rooms</h1>
+        <p class="panel-sub">Suite numbers so you can find each other once you've checked in.</p>
+      </div>
+
+      <form id="rooms-form" class="add-row">
+        <input type="text" id="room-name" placeholder="Name" required />
+        <input type="text" id="room-number" placeholder="Room / suite #" required />
+        <input type="text" id="room-notes" placeholder="Notes, e.g. oceanfront" />
+        <button type="submit">Add</button>
+      </form>
+
+      <div id="rooms-list" class="day-list">
+        <p class="empty-state">No rooms added yet.</p>
+      </div>
     </section>
 
     <!-- FLIGHTS PANEL: styled like an airport departure board -->
