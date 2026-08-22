@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Turks &amp; Caicos Trip</title>
+
+  <!-- Google Fonts: Fraunces (headlines, warm serif) + Work Sans (body) + IBM Plex Mono (flight board) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Header: styled like a resort wristband -->
+  <header class="wristband">
+    <div class="wristband__hole"></div>
+    <div class="wristband__text">
+      <span class="wristband__title">Turks &amp; Caicos</span>
+      <span class="wristband__dates" id="trip-dates">Your trip · edit dates in Settings</span>
+    </div>
+    <div class="wristband__hole"></div>
+  </header>
+
+  <!-- Tab navigation -->
+  <nav class="tabs" id="tabs">
+    <button class="tab is-active" data-tab="itinerary">Itinerary</button>
+    <button class="tab" data-tab="packing">Packing</button>
+    <button class="tab" data-tab="flights">Flights</button>
+  </nav>
+
+  <main class="app">
+
+    <!-- ITINERARY PANEL -->
+    <section class="panel is-active" id="panel-itinerary">
+      <div class="panel-head">
+        <h1>Itinerary</h1>
+        <p class="panel-sub">The plan, day by day. Anyone can add to it.</p>
+      </div>
+
+      <form id="itinerary-form" class="add-row">
+        <input type="date" id="itinerary-date" required />
+        <input type="time" id="itinerary-time" />
+        <input type="text" id="itinerary-title" placeholder="What's happening? e.g. Catamaran snorkel trip" required />
+        <button type="submit">Add</button>
+      </form>
+
+      <div id="itinerary-list" class="day-list">
+        <p class="empty-state">No plans yet. Add the first one above &mdash; flights, excursions, dinner reservations, whatever's locked in.</p>
+      </div>
+    </section>
+
+    <!-- PACKING PANEL -->
+    <section class="panel" id="panel-packing">
+      <div class="panel-head">
+        <h1>Packing List</h1>
+        <p class="panel-sub">Shared checklist. Check off what's packed.</p>
+      </div>
+
+      <form id="packing-form" class="add-row">
+        <input type="text" id="packing-item" placeholder="Add an item, e.g. Reef-safe sunscreen" required />
+        <button type="submit">Add</button>
+      </form>
+
+      <ul id="packing-list" class="checklist">
+        <li class="empty-state">Nothing on the list yet.</li>
+      </ul>
+    </section>
+
+    <!-- FLIGHTS PANEL: styled like an airport departure board -->
+    <section class="panel" id="panel-flights">
+      <div class="panel-head">
+        <h1>Flights</h1>
+        <p class="panel-sub">Enter each person's arriving &amp; departing flight so everyone knows who's landing when.</p>
+      </div>
+
+      <form id="flight-form" class="add-row add-row--flight">
+        <input type="text" id="flight-name" placeholder="Name" required />
+        <select id="flight-direction" required>
+          <option value="" disabled selected>Direction</option>
+          <option value="ARR">Arriving</option>
+          <option value="DEP">Departing</option>
+        </select>
+        <input type="text" id="flight-number" placeholder="Flight #, e.g. AA1234" required />
+        <input type="date" id="flight-date" required />
+        <input type="time" id="flight-time" required />
+        <button type="submit">Add</button>
+      </form>
+
+      <div class="board" id="flight-board">
+        <div class="board__row board__row--head">
+          <span>Name</span><span>Flight</span><span>Date</span><span>Time</span><span></span>
+        </div>
+        <p class="empty-state" id="flight-empty">No flights logged yet.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <p>Synced live with everyone using this link.</p>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

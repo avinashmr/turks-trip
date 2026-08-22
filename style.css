@@ -1,0 +1,362 @@
+/* ============================================
+   DESIGN TOKENS
+   Palette inspired by Turks & Caicos: deep ocean
+   navy, turquoise shallows, sand, and coral reef.
+   ============================================ */
+:root {
+  --navy: #0b3d42;       /* deep ocean, dusk */
+  --navy-deep: #072a2e;  /* darker shade for depth */
+  --turquoise: #2ec4b6;  /* shallow water */
+  --turquoise-light: #7fe0d6;
+  --sand: #f2e8cf;       /* beach */
+  --coral: #f4a261;      /* accent / reef */
+  --ink: #12242a;        /* body text */
+  --white: #ffffff;
+
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Work Sans', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background: var(--sand);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+/* ============================================
+   WRISTBAND HEADER — the signature element.
+   Looks like a resort check-in wristband: a strip
+   with punched holes at each end.
+   ============================================ */
+.wristband {
+  background: var(--turquoise);
+  background-image: linear-gradient(135deg, var(--turquoise) 0%, #23a99c 100%);
+  color: var(--navy-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 22px 20px;
+  position: relative;
+}
+
+.wristband__hole {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--sand);
+  box-shadow: inset 0 2px 3px rgba(0,0,0,0.25);
+  flex-shrink: 0;
+}
+
+.wristband__text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.wristband__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.5rem, 5vw, 2.25rem);
+  letter-spacing: 0.02em;
+}
+
+.wristband__dates {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  opacity: 0.75;
+  margin-top: 2px;
+}
+
+/* ============================================
+   TAB NAVIGATION
+   ============================================ */
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  background: var(--navy);
+  padding: 6px;
+  max-width: 520px;
+  margin: -16px auto 0;
+  border-radius: 999px;
+  position: relative;
+  box-shadow: 0 6px 16px rgba(7, 42, 46, 0.25);
+}
+
+.tab {
+  flex: 1;
+  padding: 10px 18px;
+  border: none;
+  background: transparent;
+  color: var(--turquoise-light);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.tab:hover { background: rgba(255,255,255,0.08); }
+
+.tab.is-active {
+  background: var(--coral);
+  color: var(--navy-deep);
+}
+
+/* ============================================
+   MAIN LAYOUT
+   ============================================ */
+.app {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+}
+
+.panel { display: none; }
+.panel.is-active { display: block; animation: fade-in 0.25s ease; }
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.panel-head h1 {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  margin: 0 0 4px;
+  color: var(--navy);
+}
+
+.panel-sub {
+  margin: 0 0 20px;
+  color: #4a5f63;
+  font-size: 0.95rem;
+}
+
+/* ============================================
+   FORMS (shared "add row" style)
+   ============================================ */
+.add-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+  background: var(--white);
+  padding: 12px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(11, 61, 66, 0.08);
+}
+
+.add-row input,
+.add-row select {
+  flex: 1 1 120px;
+  padding: 10px 12px;
+  border: 1px solid #dcd3b8;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  background: var(--sand);
+  color: var(--ink);
+}
+
+.add-row input:focus,
+.add-row select:focus {
+  outline: 2px solid var(--turquoise);
+  outline-offset: 1px;
+}
+
+.add-row button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background: var(--navy);
+  color: var(--white);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.add-row button:hover { background: var(--navy-deep); }
+.add-row button:focus-visible { outline: 2px solid var(--coral); outline-offset: 2px; }
+
+/* ============================================
+   ITINERARY — grouped by day
+   ============================================ */
+.day-group {
+  margin-bottom: 20px;
+}
+
+.day-group__heading {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--coral);
+  border-bottom: 2px solid var(--coral);
+  padding-bottom: 4px;
+  margin-bottom: 10px;
+}
+
+.day-item {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  background: var(--white);
+  padding: 12px 14px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 4px rgba(11, 61, 66, 0.06);
+}
+
+.day-item__time {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--navy);
+  min-width: 56px;
+}
+
+.day-item__title { flex: 1; }
+
+.day-item__delete {
+  border: none;
+  background: none;
+  color: #b0554a;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+/* ============================================
+   PACKING CHECKLIST
+   ============================================ */
+.checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.checklist li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--white);
+  padding: 12px 14px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 4px rgba(11, 61, 66, 0.06);
+}
+
+.checklist input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--turquoise);
+}
+
+.checklist label {
+  flex: 1;
+  cursor: pointer;
+}
+
+.checklist li.is-packed label {
+  text-decoration: line-through;
+  color: #8a938f;
+}
+
+.checklist__delete {
+  border: none;
+  background: none;
+  color: #b0554a;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+/* ============================================
+   FLIGHT BOARD — split-flap airport departure
+   board aesthetic. The signature element for
+   this panel.
+   ============================================ */
+.board {
+  background: var(--navy-deep);
+  border-radius: 12px;
+  padding: 8px;
+  overflow-x: auto;
+}
+
+.board__row {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr 0.8fr auto;
+  gap: 8px;
+  padding: 10px 12px;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--turquoise-light);
+  border-bottom: 1px solid rgba(127, 224, 214, 0.15);
+  min-width: 460px;
+}
+
+.board__row--head {
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: var(--coral);
+  border-bottom: 2px solid var(--coral);
+}
+
+.board__row--arr .board__tag { color: var(--turquoise-light); }
+.board__row--dep .board__tag { color: var(--coral); }
+
+.board__tag {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.board__delete {
+  border: none;
+  background: none;
+  color: #6b8b8c;
+  cursor: pointer;
+  font-size: 0.75rem;
+  justify-self: end;
+}
+
+.board__delete:hover { color: var(--coral); }
+
+/* ============================================
+   MISC
+   ============================================ */
+.empty-state {
+  color: #6b7f7a;
+  font-style: italic;
+  font-size: 0.9rem;
+  padding: 12px 4px;
+}
+
+.footer {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #7a8a83;
+  padding: 20px;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .panel.is-active { animation: none; }
+}
+
+/* Mobile tweaks */
+@media (max-width: 480px) {
+  .add-row { flex-direction: column; }
+  .add-row input, .add-row select, .add-row button { flex: 1 1 auto; width: 100%; }
+}
