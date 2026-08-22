@@ -156,6 +156,128 @@ function renderDinner() {
   });
 }
 
+// ---------------------------------------------------------
+// 3b. DINNER VOTING
+// ---------------------------------------------------------
+// Each poll document looks like:
+//   { date: "2026-11-15", options: ["Coconut Bar", "Blue Haven"], votes: { "Smith Family": "Coconut Bar" } }
+// "votes" is a map from voter name -> the option they picked. Using a
+// map (rather than a list of vote records) means a person can change
+// their vote just by voting again — the old value is simply overwritten.
+const dinnerPollsCollection = collection(db, 'dinnerPolls');
+let dinnerPolls = [];
+
+// The "your name" field is remembered per-device via localStorage —
+// this is just a convenience so you don't retype it every time you
+// vote on this browser. It's not shared with anyone; it only pre-fills
+// the box.
+const voterNameInput = document.getElementById('voter-name');
+voterNameInput.value = localStorage.getItem('trip.voterName') || '';
+voterNameInput.addEventListener('input', () => {
+  localStorage.setItem('trip.voterName', voterNameInput.value);
+});
+
+const pollForm = document.getElementById('poll-form');
+const pollDateInput = document.getElementById('poll-date');
+const pollOptionsInput = document.getElementById('poll-options');
+const pollListEl = document.getElementById('poll-list');
+
+pollForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+
+  const options = pollOptionsInput.value
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  if (options.length < 2) {
+    alert('Add at least two options, separated by commas.');
+    return;
+  }
+
+  addDoc(dinnerPollsCollection, { date: pollDateInput.value, options, votes: {} });
+  pollForm.reset();
+});
+
+onSnapshot(dinnerPollsCollection, (snapshot) => {
+  dinnerPolls = snapshot.docs.map((docSnap) => ({ id: docSnap.id, votes: {}, ...docSnap.data() }));
+  renderPolls();
+});
+
+function renderPolls() {
+  if (dinnerPolls.length === 0) {
+    pollListEl.innerHTML = `<p class="empty-state">No polls yet.</p>`;
+    return;
+  }
+
+  const sorted = [...dinnerPolls].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+  const myName = voterNameInput.value.trim();
+
+  pollListEl.innerHTML = sorted
+    .map((poll) => {
+      const votes = poll.votes || {};
+
+      // Tally: for each option, collect the list of voter names who picked it.
+      const voterNamesByOption = {};
+      poll.options.forEach((opt) => (voterNamesByOption[opt] = []));
+      Object.entries(votes).forEach(([voter, chosenOption]) => {
+        if (voterNamesByOption[chosenOption]) voterNamesByOption[chosenOption].push(voter);
+      });
+
+      const highestCount = Math.max(0, ...Object.values(voterNamesByOption).map((v) => v.length));
+      const myVote = votes[myName];
+
+      const optionsHtml = poll.options
+        .map((opt) => {
+          const voters = voterNamesByOption[opt];
+          const isLeading = voters.length > 0 && voters.length === highestCount;
+          const isMine = myVote === opt;
+          const voterList = voters.length ? ` &middot; ${voters.map(escapeHtml).join(', ')}` : '';
+
+          return `
+            <button
+              class="poll-option ${isLeading ? 'is-leading' : ''} ${isMine ? 'is-mine' : ''}"
+              data-id="${poll.id}"
+              data-option="${escapeHtml(opt)}"
+            >
+              <span>${escapeHtml(opt)}</span>
+              <span class="poll-option__count">${voters.length} vote${voters.length === 1 ? '' : 's'}${voterList}</span>
+            </button>`;
+        })
+        .join('');
+
+      return `
+        <div class="poll-card">
+          <div class="poll-card__head">
+            <span class="poll-card__date">${formatDateHeading(poll.date)}</span>
+            <button class="poll-card__delete" data-id="${poll.id}">Remove poll</button>
+          </div>
+          ${optionsHtml}
+        </div>`;
+    })
+    .join('');
+
+  pollListEl.querySelectorAll('.poll-option').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const name = voterNameInput.value.trim();
+      if (!name) {
+        alert("Enter your name in the box above first, so we know whose vote this is.");
+        voterNameInput.focus();
+        return;
+      }
+      // Dot-notation field paths let us update just ONE key inside the
+      // "votes" map without overwriting anyone else's vote.
+      updateDoc(doc(db, 'dinnerPolls', btn.dataset.id), { [`votes.${name}`]: btn.dataset.option });
+    });
+  });
+
+  pollListEl.querySelectorAll('.poll-card__delete').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      deleteDoc(doc(db, 'dinnerPolls', btn.dataset.id));
+    });
+  });
+}
+
 // Shared helper for both Itinerary and Dinner: both are "grouped by day"
 // lists, so this one function sorts, groups by date, renders, and wires
 // up delete buttons for whichever collection is passed in.

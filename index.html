@@ -79,6 +79,25 @@
       <div id="dinner-list" class="day-list">
         <p class="empty-state">No dinner plans yet. Add the first night above.</p>
       </div>
+
+      <div class="vote-section">
+        <h2 class="vote-section__heading">Vote for dinner</h2>
+        <p class="panel-sub">For a night nobody's decided on: list a few restaurant options and let each family (or person) tap their pick. Works for all 3 families, kids included &mdash; just have each voter type whatever name you want tracked, e.g. "Smith Family" or a kid's first name.</p>
+
+        <div class="add-row">
+          <input type="text" id="voter-name" placeholder="Your name (used when you vote below)" />
+        </div>
+
+        <form id="poll-form" class="add-row">
+          <input type="date" id="poll-date" required />
+          <input type="text" id="poll-options" placeholder="Options, comma separated e.g. Coconut Bar, Beach House, Blue Haven" required />
+          <button type="submit">Create poll</button>
+        </form>
+
+        <div id="poll-list" class="card-list">
+          <p class="empty-state">No polls yet.</p>
+        </div>
+      </div>
     </section>
 
     <!-- EXCURSIONS PANEL -->
