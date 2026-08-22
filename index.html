@@ -8,7 +8,7 @@
   <!-- Google Fonts: Fraunces (headlines, warm serif) + Work Sans (body) + IBM Plex Mono (flight board) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,600&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -19,9 +19,13 @@
     <div class="wristband__hole"></div>
     <div class="wristband__text">
       <span class="wristband__title">Turks &amp; Caicos</span>
-      <span class="wristband__dates" id="trip-dates">Your trip · edit dates in Settings</span>
+      <span class="wristband__dates" id="trip-dates">Alexandra Resort &middot; 3 families, one beach</span>
     </div>
     <div class="wristband__hole"></div>
+    <div class="stamp" aria-hidden="true">
+      <span>Grace Bay</span>
+      <span class="stamp__sub">Providenciales, TCI</span>
+    </div>
   </header>
 
   <!-- Tab navigation -->
@@ -40,6 +44,7 @@
     <!-- ITINERARY PANEL -->
     <section class="panel is-active" id="panel-itinerary">
       <div class="panel-head">
+        <span class="panel-eyebrow">Day by day</span>
         <h1>Itinerary</h1>
         <p class="panel-sub">The plan, day by day. Anyone can add to it.</p>
       </div>
@@ -59,6 +64,7 @@
     <!-- DINNER PANEL -->
     <section class="panel" id="panel-dinner">
       <div class="panel-head">
+        <span class="panel-eyebrow">Dine-around</span>
         <h1>Dinner Plan</h1>
         <p class="panel-sub">Alexandra's dine-around covers 7 restaurants across Alexandra, Beach House, and Blue Haven &mdash; use this to call which one you're hitting each night.</p>
       </div>
@@ -81,6 +87,7 @@
       </div>
 
       <div class="vote-section">
+        <span class="panel-eyebrow">Still deciding?</span>
         <h2 class="vote-section__heading">Vote for dinner</h2>
         <p class="panel-sub">For a night nobody's decided on: list a few restaurant options and let each family (or person) tap their pick. Works for all 3 families, kids included &mdash; just have each voter type whatever name you want tracked, e.g. "Smith Family" or a kid's first name.</p>
 
@@ -103,6 +110,7 @@
     <!-- EXCURSIONS PANEL -->
     <section class="panel" id="panel-excursions">
       <div class="panel-head">
+        <span class="panel-eyebrow">Tap to join</span>
         <h1>Excursions</h1>
         <p class="panel-sub">Post an activity, and everyone taps in if they're joining &mdash; no more group-chat headcounts.</p>
       </div>
@@ -122,6 +130,7 @@
     <!-- PACKING PANEL (packing list + grocery list, toggled) -->
     <section class="panel" id="panel-packing">
       <div class="panel-head">
+        <span class="panel-eyebrow">Shared checklist</span>
         <h1>Packing List</h1>
         <p class="panel-sub">Shared checklist. Check off what's packed &mdash; and since the suites have kitchens, swap over to Groceries for the first-day supermarket run.</p>
       </div>
@@ -153,6 +162,7 @@
     <!-- EXPENSES PANEL -->
     <section class="panel" id="panel-expenses">
       <div class="panel-head">
+        <span class="panel-eyebrow">Split fairly</span>
         <h1>Expenses</h1>
         <p class="panel-sub">Log who paid for what, list who's splitting costs, and see exactly who should pay whom to settle up evenly.</p>
       </div>
@@ -180,6 +190,7 @@
     <!-- ROOMS PANEL -->
     <section class="panel" id="panel-rooms">
       <div class="panel-head">
+        <span class="panel-eyebrow">Who's where</span>
         <h1>Rooms</h1>
         <p class="panel-sub">Suite numbers so you can find each other once you've checked in.</p>
       </div>
@@ -199,6 +210,7 @@
     <!-- FLIGHTS PANEL: styled like an airport departure board -->
     <section class="panel" id="panel-flights">
       <div class="panel-head">
+        <span class="panel-eyebrow">Arrivals &amp; departures</span>
         <h1>Flights</h1>
         <p class="panel-sub">Enter each person's arriving &amp; departing flight so everyone knows who's landing when.</p>
       </div>
