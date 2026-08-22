@@ -106,6 +106,7 @@ function renderItinerary() {
       </div>`,
     deleteSelector: '.day-item__delete',
     collectionName: 'itinerary',
+    itemLabel: 'this plan',
   });
 }
 
@@ -153,6 +154,7 @@ function renderDinner() {
       </div>`,
     deleteSelector: '.day-item__delete',
     collectionName: 'dinner',
+    itemLabel: 'this dinner plan',
   });
 }
 
@@ -273,6 +275,7 @@ function renderPolls() {
 
   pollListEl.querySelectorAll('.poll-card__delete').forEach((btn) => {
     btn.addEventListener('click', () => {
+      if (!confirmRemove('this poll (and all its votes)')) return;
       deleteDoc(doc(db, 'dinnerPolls', btn.dataset.id));
     });
   });
@@ -281,7 +284,7 @@ function renderPolls() {
 // Shared helper for both Itinerary and Dinner: both are "grouped by day"
 // lists, so this one function sorts, groups by date, renders, and wires
 // up delete buttons for whichever collection is passed in.
-function renderDayGroups({ items, listEl, emptyHtml, rowHtml, deleteSelector, collectionName }) {
+function renderDayGroups({ items, listEl, emptyHtml, rowHtml, deleteSelector, collectionName, itemLabel = 'this item' }) {
   if (items.length === 0) {
     listEl.innerHTML = emptyHtml;
     return;
@@ -305,6 +308,7 @@ function renderDayGroups({ items, listEl, emptyHtml, rowHtml, deleteSelector, co
 
   listEl.querySelectorAll(deleteSelector).forEach((btn) => {
     btn.addEventListener('click', () => {
+      if (!confirmRemove(itemLabel)) return;
       deleteDoc(doc(db, collectionName, btn.dataset.id));
     });
   });
@@ -402,6 +406,7 @@ function renderExcursions() {
 
   excursionListEl.querySelectorAll('.excursion-card__delete').forEach((btn) => {
     btn.addEventListener('click', () => {
+      if (!confirmRemove('this excursion (and everyone who joined it)')) return;
       deleteDoc(doc(db, 'excursions', btn.dataset.id));
     });
   });
@@ -460,6 +465,7 @@ function setupChecklist({ collectionName, formEl, inputEl, listEl }) {
 
     listEl.querySelectorAll('.checklist__delete').forEach((btn) => {
       btn.addEventListener('click', () => {
+        if (!confirmRemove('this item')) return;
         deleteDoc(doc(db, collectionName, btn.dataset.id));
       });
     });
@@ -483,36 +489,41 @@ setupChecklist({
 // ---------------------------------------------------------
 // 6. EXPENSES
 // ---------------------------------------------------------
-// A lightweight cost-splitting helper: log who paid for what, set
-// how many people are splitting costs, and see a rough sense of
-// who's ahead or behind an equal split. This is NOT a full
-// settle-up calculator (it doesn't know who owes who directly) —
-// just a quick temperature check.
+// Log who paid for what, list the names splitting costs (e.g. one
+// entry per family), and see two things: a per-person balance
+// against an equal split, AND a settle-up list — the fewest
+// payments needed to make everyone even. That second part uses a
+// classic "debt simplification" trick: match the person owed the
+// most money with the person who owes the most, repeat.
 const expensesCollection = collection(db, 'expenses');
 const expensesSettingsRef = doc(db, 'settings', 'expenses');
 let expenses = [];
-let peopleCount = 1;
+let participants = [];
 
 const expensesSettingsForm = document.getElementById('expenses-settings-form');
-const expensesPeopleCountInput = document.getElementById('expenses-people-count');
+const expensesParticipantsInput = document.getElementById('expenses-participants');
 const expenseForm = document.getElementById('expense-form');
 const expenseDescriptionInput = document.getElementById('expense-description');
 const expenseAmountInput = document.getElementById('expense-amount');
 const expensePayerInput = document.getElementById('expense-payer');
 const expenseListEl = document.getElementById('expense-list');
 const expenseSummaryEl = document.getElementById('expense-summary');
+const expenseSettlementsEl = document.getElementById('expense-settlements');
 
 expensesSettingsForm.addEventListener('submit', (event) => {
   event.preventDefault();
-  const count = Math.max(1, parseInt(expensesPeopleCountInput.value, 10) || 1);
+  const names = expensesParticipantsInput.value
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
   // setDoc with { merge: true } creates the document if it doesn't exist yet,
   // or updates just this field if it does — either way is safe here.
-  setDoc(expensesSettingsRef, { peopleCount: count }, { merge: true });
+  setDoc(expensesSettingsRef, { participants: names }, { merge: true });
 });
 
 onSnapshot(expensesSettingsRef, (snapshot) => {
-  peopleCount = snapshot.exists() ? snapshot.data().peopleCount || 1 : 1;
-  expensesPeopleCountInput.value = peopleCount;
+  participants = snapshot.exists() ? snapshot.data().participants || [] : [];
+  expensesParticipantsInput.value = participants.join(', ');
   renderExpenses();
 });
 
@@ -534,9 +545,15 @@ onSnapshot(expensesCollection, (snapshot) => {
 });
 
 function renderExpenses() {
-  // --- Summary card ---
   const total = expenses.reduce((sum, e) => sum + e.amount, 0);
-  const fairShare = total / peopleCount;
+
+  // Anyone who paid for something counts toward the split even if you
+  // forgot to list them in "Who's splitting" above — otherwise their
+  // money would vanish from the math.
+  const everyone = new Set(participants);
+  expenses.forEach((e) => everyone.add(e.payer || 'Unknown'));
+  const people = [...everyone];
+  const fairShare = people.length ? total / people.length : 0;
 
   const paidByPerson = {};
   expenses.forEach((e) => {
@@ -544,20 +561,39 @@ function renderExpenses() {
     paidByPerson[name] = (paidByPerson[name] || 0) + e.amount;
   });
 
-  const rows = Object.entries(paidByPerson)
-    .map(([name, paid]) => {
-      const diff = paid - fairShare;
-      const label = diff >= 0
-        ? `is owed $${diff.toFixed(2)} back`
-        : `owes $${Math.abs(diff).toFixed(2)} more`;
-      const cls = diff >= 0 ? 'summary-card__row--owed' : 'summary-card__row--owes';
+  // balance > 0 means "is owed money back"; balance < 0 means "owes more".
+  const balances = {};
+  people.forEach((name) => {
+    balances[name] = (paidByPerson[name] || 0) - fairShare;
+  });
+
+  // --- Summary card: what each person paid vs. their fair share ---
+  const summaryRows = people
+    .map((name) => {
+      const diff = balances[name];
+      const paid = paidByPerson[name] || 0;
+      const label = diff >= 0.005 ? `is owed $${diff.toFixed(2)} back` : diff <= -0.005 ? `owes $${Math.abs(diff).toFixed(2)} more` : 'is settled up';
+      const cls = diff >= 0.005 ? 'summary-card__row--owed' : diff <= -0.005 ? 'summary-card__row--owes' : '';
       return `<div class="summary-card__row ${cls}"><span>${escapeHtml(name)} (paid $${paid.toFixed(2)})</span><span>${label}</span></div>`;
     })
     .join('');
 
   expenseSummaryEl.innerHTML = `
-    <div class="summary-card__total">Total: $${total.toFixed(2)} &middot; split ${peopleCount} way${peopleCount === 1 ? '' : 's'} = $${fairShare.toFixed(2)} each</div>
-    ${rows || '<div class="summary-card__row">No expenses logged yet.</div>'}
+    <div class="summary-card__total">Total: $${total.toFixed(2)} &middot; split ${people.length} way${people.length === 1 ? '' : 's'} = $${fairShare.toFixed(2)} each</div>
+    ${summaryRows || '<div class="summary-card__row">No expenses logged yet.</div>'}
+  `;
+
+  // --- Settle-up card: the fewest payments to zero everyone out ---
+  const settlements = computeSettlements(balances);
+  expenseSettlementsEl.innerHTML = `
+    <div class="summary-card__total">Settle up</div>
+    ${
+      settlements.length === 0
+        ? '<div class="summary-card__row">Everyone\'s even — nothing to settle.</div>'
+        : settlements
+            .map((s) => `<div class="summary-card__row"><span>${escapeHtml(s.from)} pays ${escapeHtml(s.to)}</span><span>$${s.amount.toFixed(2)}</span></div>`)
+            .join('')
+    }
   `;
 
   // --- Expense list ---
@@ -579,9 +615,44 @@ function renderExpenses() {
 
   expenseListEl.querySelectorAll('.day-item__delete').forEach((btn) => {
     btn.addEventListener('click', () => {
+      if (!confirmRemove('this expense')) return;
       deleteDoc(doc(db, 'expenses', btn.dataset.id));
     });
   });
+}
+
+// Greedy debt-simplification: repeatedly pair whoever is owed the most
+// with whoever owes the most, settle as much of that pair as possible,
+// and repeat until everyone's balance is ~zero. This produces the
+// fewest payments possible to make the group even (though not
+// necessarily "who originally paid whom").
+function computeSettlements(balances) {
+  const creditors = Object.entries(balances)
+    .filter(([, amount]) => amount > 0.005)
+    .map(([name, amount]) => ({ name, amount }))
+    .sort((a, b) => b.amount - a.amount);
+
+  const debtors = Object.entries(balances)
+    .filter(([, amount]) => amount < -0.005)
+    .map(([name, amount]) => ({ name, amount: -amount })) // store as a positive "owes" amount
+    .sort((a, b) => b.amount - a.amount);
+
+  const transactions = [];
+  let i = 0;
+  let j = 0;
+
+  while (i < debtors.length && j < creditors.length) {
+    const payment = Math.min(debtors[i].amount, creditors[j].amount);
+    transactions.push({ from: debtors[i].name, to: creditors[j].name, amount: payment });
+
+    debtors[i].amount -= payment;
+    creditors[j].amount -= payment;
+
+    if (debtors[i].amount < 0.005) i++;
+    if (creditors[j].amount < 0.005) j++;
+  }
+
+  return transactions;
 }
 
 // ---------------------------------------------------------
@@ -634,6 +705,7 @@ function renderRooms() {
 
   roomsListEl.querySelectorAll('.day-item__delete').forEach((btn) => {
     btn.addEventListener('click', () => {
+      if (!confirmRemove('this room entry')) return;
       deleteDoc(doc(db, 'rooms', btn.dataset.id));
     });
   });
@@ -691,18 +763,26 @@ function renderFlights() {
   sorted.forEach((flight) => {
     const row = document.createElement('div');
     row.className = `board__row board__row--${flight.direction.toLowerCase()}`;
+    // FlightAware's public tracker works off just the flight number, no
+    // API key or signup needed — it's a real page showing live status,
+    // gate, and delay info when the airline reports it.
+    const trackUrl = `https://www.flightaware.com/live/flight/${encodeURIComponent(flight.number)}`;
     row.innerHTML = `
       <span>${escapeHtml(flight.name)} <span class="board__tag">${flight.direction === 'ARR' ? 'landing' : 'departing'}</span></span>
       <span>${escapeHtml(flight.number)}</span>
       <span>${formatShortDate(flight.date)}</span>
       <span>${flight.time}</span>
-      <button class="board__delete" data-id="${flight.id}">✕</button>
+      <span class="board__actions">
+        <a class="board__track" href="${trackUrl}" target="_blank" rel="noopener">Track ↗</a>
+        <button class="board__delete" data-id="${flight.id}">✕</button>
+      </span>
     `;
     flightBoardEl.appendChild(row);
   });
 
   flightBoardEl.querySelectorAll('.board__delete').forEach((btn) => {
     btn.addEventListener('click', () => {
+      if (!confirmRemove('this flight')) return;
       deleteDoc(doc(db, 'flights', btn.dataset.id));
     });
   });
@@ -718,6 +798,14 @@ function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
+}
+
+// A single confirmation dialog used before every destructive delete,
+// so a stray tap doesn't wipe out something the whole group can see.
+// The browser's built-in confirm() pauses everything until someone
+// clicks OK or Cancel, and returns true/false accordingly.
+function confirmRemove(label) {
+  return confirm(`Remove ${label}? This can't be undone.`);
 }
 
 // Note: there's no "initial render" call here — every onSnapshot

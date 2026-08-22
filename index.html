@@ -154,13 +154,11 @@
     <section class="panel" id="panel-expenses">
       <div class="panel-head">
         <h1>Expenses</h1>
-        <p class="panel-sub">A lightweight cost-splitting helper &mdash; not a full settle-up app, just a quick read on who's paid what.</p>
+        <p class="panel-sub">Log who paid for what, list who's splitting costs, and see exactly who should pay whom to settle up evenly.</p>
       </div>
 
       <form id="expenses-settings-form" class="add-row">
-        <label for="expenses-people-count" style="align-self:center;font-size:0.85rem;color:#4a5f63;">Splitting between</label>
-        <input type="number" id="expenses-people-count" min="1" value="1" style="max-width:70px;" />
-        <label for="expenses-people-count" style="align-self:center;font-size:0.85rem;color:#4a5f63;">people</label>
+        <input type="text" id="expenses-participants" placeholder="Who's splitting? e.g. Smith Family, Jones Family, Diaz Family" />
         <button type="submit">Save</button>
       </form>
 
@@ -172,6 +170,7 @@
       </form>
 
       <div id="expense-summary" class="summary-card"></div>
+      <div id="expense-settlements" class="summary-card"></div>
 
       <div id="expense-list" class="day-list">
         <p class="empty-state">No expenses logged yet.</p>

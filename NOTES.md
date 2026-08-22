@@ -47,6 +47,33 @@ low risk for a trip planner with no sensitive info, but worth knowing.
 If you ever want to lock it down later (e.g. require a shared passcode),
 that's a config change, not a rewrite — just ask.
 
+## Live flight status
+
+Each flight row has a "Track ↗" link that opens FlightAware's public
+tracker for that flight number — no API key or signup needed, and it's
+a real live page (delays, gate, actual times when the airline reports
+them). I deliberately didn't wire up a third-party flight API directly
+inside the app: most require a paid/keyed account, and since this is a
+static site with a public GitHub repo, any API key baked into the code
+would be visible to anyone who looks at the source. If you'd like a
+fully embedded live-status widget later and are fine with that
+trade-off (or want to keep the repo private), it's a small addition —
+just ask.
+
+## Expenses: how "settle up" works
+
+The Expenses tab now takes a list of names (e.g. one per family) instead
+of just a headcount. It computes each person's balance against an equal
+split, then works out the fewest payments needed to zero everyone out —
+this is a standard trick called debt simplification: match whoever's
+owed the most with whoever owes the most, settle as much as possible,
+repeat. It won't necessarily match the literal order expenses happened
+in, but the total money moved is the minimum possible.
+
+If you had a "Splitting between N people" value saved from before this
+update, it won't carry over — just re-enter the names once in the new
+field and it'll pick up from there.
+
 ## Files in this folder
 
 - `index.html` — page structure and layout
